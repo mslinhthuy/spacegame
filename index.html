@@ -83,7 +83,7 @@
     </div>
 
     <!-- 1. Home Screen -->
-    <div id="home-screen" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 hidden">
+    <div id="home-screen" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 hidden text-center">
         <div class="max-w-4xl w-full text-center space-y-8 bg-slate-900/60 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl">
             <div class="floating inline-block text-9xl">👩‍🚀👨‍🚀</div>
             <div>
@@ -93,10 +93,10 @@
                 <p class="text-3xl font-bold mt-2 text-indigo-300">by Ms. Linh</p>
             </div>
             
-            <div class="bg-indigo-500/10 p-8 rounded-[2.5rem] border border-indigo-500/20">
-                <p class="text-2xl font-bold text-indigo-200 uppercase tracking-widest text-center">Protocol:</p>
-                <p class="text-lg mt-2 text-slate-300 text-center">Two students stand in your <span class="text-white font-bold uppercase">Station Circle</span>.</p>
-                <p class="text-lg text-slate-300 text-center"><strong>Tilt your head</strong> to choose the missing word!</p>
+            <div class="bg-indigo-500/10 p-8 rounded-[2.5rem] border border-indigo-500/20 text-center">
+                <p class="text-2xl font-bold text-indigo-200 uppercase tracking-widest">Protocol:</p>
+                <p class="text-lg mt-2 text-slate-300">Two students stand in your <span class="text-white font-bold uppercase">Station Circle</span>.</p>
+                <p class="text-lg text-slate-300"><strong>Tilt your head</strong> to choose the missing word!</p>
             </div>
 
             <button onclick="startGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-4xl font-black py-8 px-24 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest">
@@ -113,7 +113,7 @@
             <p class="text-indigo-400 text-xs font-black uppercase tracking-[0.5em] mb-1">
                 Sentence <span id="current-q">1</span>/5 - Analyzing Nebula
             </p>
-            <h2 id="question-text" class="text-4xl md:text-7xl font-black leading-tight flex items-center justify-center py-4 min-h-[140px] px-8 text-center">
+            <h2 id="question-text" class="text-4xl md:text-7xl font-black leading-tight flex items-center justify-center py-4 min-h-[140px] px-8 text-center uppercase">
                 PREPARING...
             </h2>
         </div>
@@ -121,10 +121,10 @@
         <!-- Middle UI: Arena -->
         <div class="flex-1 grid grid-cols-12 gap-6 items-stretch min-h-0 overflow-hidden">
             
-            <!-- P1 Status -->
-            <div id="p1-zone" class="col-span-3 player-zone rounded-[3.5rem] p-8 flex flex-col items-center justify-between border-2">
+            <!-- P1 Status (Left - Blue) -->
+            <div id="p1-zone" class="col-span-3 player-zone rounded-[3.5rem] p-8 flex flex-col items-center justify-between border-2 border-blue-500/20">
                 <div class="text-center">
-                    <div class="text-blue-400 font-black text-2xl tracking-widest">PILOT 1</div>
+                    <div class="text-blue-400 font-black text-2xl tracking-widest uppercase">Pilot 1</div>
                     <div class="text-7xl font-black text-white mt-4" id="p1-score">0</div>
                 </div>
                 
@@ -135,8 +135,8 @@
                 </div>
 
                 <div class="w-full space-y-4">
-                    <div id="p1-a" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">A: WAS</div>
-                    <div id="p1-b" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">B: WERE</div>
+                    <div id="p1-a" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase tracking-wider">A: WAS</div>
+                    <div id="p1-b" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase tracking-wider text-white/50">B: WERE</div>
                 </div>
             </div>
 
@@ -156,10 +156,10 @@
                 </div>
             </div>
 
-            <!-- P2 Status -->
-            <div id="p2-zone" class="col-span-3 player-zone rounded-[3.5rem] p-8 flex flex-col items-center justify-between border-2">
+            <!-- P2 Status (Right - Pink) -->
+            <div id="p2-zone" class="col-span-3 player-zone rounded-[3.5rem] p-8 flex flex-col items-center justify-between border-2 border-pink-500/20">
                 <div class="text-center">
-                    <div class="text-pink-400 font-black text-2xl tracking-widest">PILOT 2</div>
+                    <div class="text-pink-400 font-black text-2xl tracking-widest uppercase">Pilot 2</div>
                     <div class="text-7xl font-black text-white mt-4" id="p2-score">0</div>
                 </div>
 
@@ -170,14 +170,14 @@
                 </div>
 
                 <div class="w-full space-y-4">
-                    <div id="p2-a" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">A: WAS</div>
-                    <div id="p2-b" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">B: WERE</div>
+                    <div id="p2-a" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase tracking-wider text-white/50">A: WAS</div>
+                    <div id="p2-b" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase tracking-wider">B: WERE</div>
                 </div>
             </div>
         </div>
 
         <!-- Dashboard -->
-        <div class="bg-slate-900/80 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/10 flex justify-between items-center shadow-2xl">
+        <div class="bg-slate-900/80 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/10 flex justify-between items-center shadow-2xl flex-shrink-0">
             <div class="text-indigo-400 font-black text-base uppercase tracking-[0.3em] pl-8 border-l-4 border-indigo-500">
                 Ms. Linh's Battle Arena
             </div>
@@ -192,22 +192,22 @@
         </div>
     </div>
 
-    <!-- Final Result Area -->
+    <!-- Final Result -->
     <div id="result-screen" class="hidden fixed inset-0 z-[60] flex flex-col items-center justify-center p-6 text-center bg-black/95 backdrop-blur-2xl">
         <div class="bg-slate-900 p-20 rounded-[5rem] border-4 border-indigo-500/30 max-w-3xl w-full shadow-[0_0_120px_rgba(79,70,229,0.4)]">
-            <h2 class="text-7xl font-black text-white mb-12 tracking-tighter uppercase text-center">Battle Ended!</h2>
+            <h2 class="text-7xl font-black text-white mb-12 tracking-tighter uppercase">Battle Ended!</h2>
             <div class="flex justify-around items-center mb-16">
                 <div class="bg-blue-900/30 p-10 rounded-[4rem] border-2 border-blue-500/30 text-center">
-                    <p class="text-blue-400 font-black text-xl mb-4">PILOT 1</p>
+                    <p class="text-blue-400 font-black text-xl mb-4 uppercase font-bold">Pilot 1</p>
                     <p class="text-9xl font-black text-blue-500" id="final-p1">0</p>
                 </div>
                 <div class="text-6xl font-black opacity-20 px-4">VS</div>
                 <div class="bg-pink-900/30 p-10 rounded-[4rem] border-2 border-pink-500/30 text-center">
-                    <p class="text-pink-400 font-black text-xl mb-4">PILOT 2</p>
+                    <p class="text-pink-400 font-black text-xl mb-4 uppercase font-bold">Pilot 2</p>
                     <p class="text-9xl font-black text-pink-500" id="final-p2">0</p>
                 </div>
             </div>
-            <h3 id="winner-text" class="text-5xl font-black text-yellow-400 mb-14 uppercase animate-bounce italic text-center">...</h3>
+            <h3 id="winner-text" class="text-5xl font-black text-yellow-400 mb-14 uppercase animate-bounce italic">...</h3>
             <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-4xl font-black py-10 rounded-[3rem] uppercase tracking-widest shadow-2xl">
                 Rematch
             </button>
@@ -266,17 +266,24 @@
             ctx.save();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw dual station guides (Visual feedback for students)
+            // --- DRAWING STATIONS (FIXED COLORS FOR MIRROR) ---
+            // Because canvas is scaleX(-1):
+            // Drawing at x=0.75 appears on Screen LEFT
+            // Drawing at x=0.25 appears on Screen RIGHT
+            
             ctx.lineWidth = 5;
             ctx.setLineDash([10, 10]);
-            ctx.strokeStyle = "rgba(59, 130, 246, 0.4)"; // Screen Left (Station 1)
-            ctx.beginPath();
-            ctx.arc(canvas.width * 0.25, canvas.height * 0.5, 110, 0, 2*Math.PI);
-            ctx.stroke();
-
-            ctx.strokeStyle = "rgba(236, 72, 153, 0.4)"; // Screen Right (Station 2)
+            
+            // Station 1: Visual Left (Coordinate 0.75) -> Blue
+            ctx.strokeStyle = "rgba(59, 130, 246, 0.6)"; 
             ctx.beginPath();
             ctx.arc(canvas.width * 0.75, canvas.height * 0.5, 110, 0, 2*Math.PI);
+            ctx.stroke();
+
+            // Station 2: Visual Right (Coordinate 0.25) -> Pink
+            ctx.strokeStyle = "rgba(236, 72, 153, 0.6)";
+            ctx.beginPath();
+            ctx.arc(canvas.width * 0.25, canvas.height * 0.5, 110, 0, 2*Math.PI);
             ctx.stroke();
             ctx.setLineDash([]);
 
@@ -290,13 +297,7 @@
                     const rightEye = landmarks[263]; 
                     const nose = landmarks[1];
                     
-                    // --- STATION MAPPING LOGIC (FIXED) ---
-                    // Raw MediaPipe X: 0 (Left) to 1 (Right)
-                    // CSS mirrored: 0 becomes screen-right, 1 becomes screen-left
-                    // So, raw X > 0.5 means person is standing on the SCREEN-LEFT (Station 1)
                     const faceCenterX = nose.x;
-                    
-                    // Head tilt calculation (Roll)
                     const eyeDiffY = (rightEye.y - leftEye.y);
                     const TILT_LIMIT = 0.05;
                     
@@ -304,11 +305,11 @@
                     if (eyeDiffY > TILT_LIMIT) tiltAction = 'A';
                     else if (eyeDiffY < -TILT_LIMIT) tiltAction = 'B';
 
-                    // Mapping: Person on screen-left (raw X > 0.5) is Player 1
+                    // --- MAPPING (FIXED FOR MIRROR) ---
+                    // Raw X > 0.5 is Visual Left (Station 1)
                     if (faceCenterX > 0.5) currentP1Action = tiltAction;
                     else currentP2Action = tiltAction;
 
-                    // Small debug dots
                     ctx.fillStyle = "white";
                     [leftEye, rightEye].forEach(p => {
                         ctx.beginPath();
@@ -337,8 +338,13 @@
             if (action !== currentAct) {
                 if (playerNum === 1) { p1Selection = action; p1Progress = 0; }
                 else { p2Selection = action; p2Progress = 0; }
-                btnA.className = action === 'A' ? "p-5 bg-blue-600 rounded-3xl text-center font-black text-xl border-2 border-white shadow-lg uppercase" : "p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase";
-                btnB.className = action === 'B' ? "p-5 bg-pink-600 rounded-3xl text-center font-black text-xl border-2 border-white shadow-lg uppercase" : "p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase";
+                
+                // Highlight effects
+                btnA.style.borderColor = (action === 'A') ? "white" : "transparent";
+                btnA.style.background = (action === 'A') ? (playerNum === 1 ? "#3b82f6" : "#ec4899") : "#1e293b";
+                btnB.style.borderColor = (action === 'B') ? "white" : "transparent";
+                btnB.style.background = (action === 'B') ? (playerNum === 1 ? "#3b82f6" : "#ec4899") : "#1e293b";
+                
                 zone.classList.remove('active-p1', 'active-p2');
             } else if (action !== null) {
                 if (playerNum === 1) { p1Progress += 5; currentProg = p1Progress; zone.classList.add('active-p1'); }
@@ -360,10 +366,10 @@
             
             if (choice === correct) {
                 if (playerNum === 1) p1Score++; else p2Score++;
-                msg.innerText = `PILOT ${playerNum} SCORED! 🚀`;
+                msg.innerText = `PILOT ${playerNum} CAPTURED NEBULA! 🚀`;
                 msg.className = playerNum === 1 ? "text-2xl font-black text-blue-400 italic tracking-widest uppercase" : "text-2xl font-black text-pink-400 italic tracking-widest uppercase";
             } else {
-                msg.innerText = `PILOT ${playerNum} MALFUNCTION! ❌`;
+                msg.innerText = `PILOT ${playerNum} BLACK HOLE! ❌`;
                 msg.className = "text-2xl font-black text-rose-500 italic tracking-widest uppercase";
             }
 
