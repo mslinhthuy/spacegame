@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space Grammar Lab - Pose Challenge</title>
+    <title>Space Grammar Battle - Dual Tilt Stations</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- MediaPipe Pose -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    <!-- MediaPipe Face Mesh -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Quicksand:wght@400;700&display=swap');
@@ -21,7 +21,6 @@
             flex-direction: column;
         }
 
-        /* Space Background */
         .stars {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -40,35 +39,32 @@
             50% { opacity: 1; transform: scale(1.2); }
         }
 
-        .option-card { 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border: 4px solid rgba(255, 255, 255, 0.1);
-        }
-        .selected-a { 
-            border-color: #60a5fa; 
-            background: rgba(30, 58, 138, 0.8); 
-            box-shadow: 0 0 50px rgba(59, 130, 246, 0.8);
-            transform: scale(1.1);
-        }
-        .selected-b { 
-            border-color: #34d399; 
-            background: rgba(6, 78, 59, 0.8); 
-            box-shadow: 0 0 50px rgba(16, 185, 129, 0.8);
-            transform: scale(1.1);
+        .player-zone {
+            transition: all 0.3s ease;
+            border: 4px solid rgba(255, 255, 255, 0.05);
+            background: rgba(15, 23, 42, 0.6);
         }
         
-        .planet {
-            border-radius: 50%;
-            box-shadow: inset -15px -15px 30px rgba(0,0,0,0.7);
-        }
+        .active-p1 { border-color: #3b82f6; background: rgba(59, 130, 246, 0.15); box-shadow: 0 0 30px rgba(59, 130, 246, 0.3); }
+        .active-p2 { border-color: #ec4899; background: rgba(236, 72, 153, 0.15); box-shadow: 0 0 30px rgba(236, 72, 153, 0.3); }
 
         #video-container { 
             transform: scaleX(-1); 
             border: 4px solid #4f46e5; 
             border-radius: 2rem; 
-            box-shadow: 0 0 30px rgba(79, 70, 229, 0.4); 
-            max-height: 35vh; /* Giới hạn chiều cao camera để fit màn hình */
+            max-height: 35vh;
+            position: relative;
         }
+
+        .progress-vertical {
+            width: 16px;
+            height: 100%;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill { transition: height 0.1s linear; width: 100%; position: absolute; bottom: 0; }
 
         .floating { animation: floating 4s ease-in-out infinite; }
         @keyframes floating {
@@ -82,133 +78,144 @@
 
     <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center text-center p-6 transition-all duration-700">
-        <div class="text-7xl mb-6 animate-pulse">🛸</div>
-        <div class="w-64 h-2 bg-slate-800 rounded-full overflow-hidden">
-            <div class="h-full bg-indigo-500 animate-[loading_1.5s_infinite]"></div>
-        </div>
-        <p class="mt-6 font-bold text-indigo-300 text-xl tracking-widest uppercase">Initializing Space AI...</p>
+        <div class="text-8xl mb-6 animate-pulse">🛸</div>
+        <p class="mt-6 font-bold text-indigo-300 text-2xl tracking-[0.3em] uppercase">Syncing Dual-Pilot Neural Link...</p>
     </div>
 
     <!-- 1. Home Screen -->
     <div id="home-screen" class="fixed inset-0 z-40 flex flex-col items-center justify-center p-4 hidden">
-        <div class="max-w-4xl w-full text-center space-y-6">
-            <div class="floating inline-block text-8xl md:text-9xl mb-4">🪐</div>
+        <div class="max-w-4xl w-full text-center space-y-8 bg-slate-900/60 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl">
+            <div class="floating inline-block text-9xl">👩‍🚀👨‍🚀</div>
             <div>
-                <h1 class="text-6xl md:text-8xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-                    SPACE GRAMMAR
+                <h1 class="text-7xl md:text-9xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 uppercase">
+                    Head Battle
                 </h1>
-                <p class="text-3xl font-bold text-indigo-300">by Ms. Linh</p>
+                <p class="text-3xl font-bold mt-2 text-indigo-300">by Ms. Linh</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div class="bg-indigo-900/40 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 text-left">
-                    <h3 class="text-2xl font-bold mb-3 text-indigo-200">✨ How to Play:</h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center font-black text-xl">A</div>
-                            <span class="text-lg">Raise <strong>LEFT ARM</strong> for WAS</span>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center font-black text-xl">B</div>
-                            <span class="text-lg">Raise <strong>RIGHT ARM</strong> for WERE</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="bg-purple-900/40 backdrop-blur-xl p-6 rounded-[2rem] border border-white/10 text-left flex flex-col justify-center">
-                    <p class="text-lg leading-relaxed text-slate-300">
-                        Stand back! Make sure the camera can see your shoulders and arms. Hold your position to confirm!
-                    </p>
-                </div>
+            <div class="bg-indigo-500/10 p-8 rounded-[2.5rem] border border-indigo-500/20">
+                <p class="text-2xl font-bold text-indigo-200 uppercase tracking-widest">Protocol:</p>
+                <p class="text-lg mt-2 text-slate-300">Two students stand in your <span class="text-white font-bold uppercase">Station Circle</span>.</p>
+                <p class="text-lg text-slate-300"><strong>Tilt your head</strong> to choose the missing word!</p>
             </div>
 
-            <button onclick="startGame()" class="mt-6 bg-indigo-600 hover:bg-indigo-500 text-white text-3xl font-black py-6 px-20 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest">
-                Launch Mission
+            <button onclick="startGame()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-4xl font-black py-8 px-24 rounded-full shadow-2xl transition-all hover:scale-105 active:scale-95 uppercase tracking-widest">
+                Start Mission
             </button>
         </div>
     </div>
 
     <!-- 2. Gameplay Container -->
-    <div id="game-container" class="flex-1 flex flex-col gap-2 md:gap-4 max-w-7xl mx-auto w-full hidden h-full">
-        <!-- Top UI: Question (TO RÕ) -->
-        <div class="bg-slate-900/80 backdrop-blur-2xl rounded-[2rem] p-4 md:p-6 text-center border border-white/10 relative overflow-hidden flex-shrink-0">
-            <div id="timer-bar" class="absolute top-0 left-0 h-2 bg-indigo-500 transition-all duration-100" style="width: 0%"></div>
-            <p class="text-indigo-400 text-xs font-black uppercase tracking-[0.4em] mb-1">Mission Sector <span id="current-q">1</span>/5</p>
-            <h2 id="question-text" class="text-3xl md:text-5xl lg:text-6xl font-black leading-tight flex items-center justify-center px-2 py-4">
-                SCANNING...
+    <div id="game-container" class="flex-1 flex flex-col gap-4 max-w-7xl mx-auto w-full hidden h-full">
+        
+        <!-- Top UI: Question -->
+        <div class="bg-slate-900/80 backdrop-blur-2xl rounded-[2.5rem] p-6 text-center border border-white/10 relative overflow-hidden shadow-xl">
+            <p class="text-indigo-400 text-xs font-black uppercase tracking-[0.5em] mb-1">
+                Sentence <span id="current-q">1</span>/5 - Analyzing Nebula
+            </p>
+            <h2 id="question-text" class="text-4xl md:text-7xl font-black leading-tight flex items-center justify-center py-4 min-h-[140px] px-8 text-center">
+                PREPARING...
             </h2>
         </div>
 
-        <!-- Middle UI: Grid (Cân bằng Camera và Đáp án) -->
-        <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 items-center min-h-0 overflow-hidden">
-            <!-- Option A -->
-            <div class="lg:col-span-3 flex flex-col justify-center h-full">
-                <div id="option-a-container" class="option-card planet bg-gradient-to-br from-blue-600 to-indigo-900 p-6 md:p-10 flex flex-col items-center justify-center text-center aspect-square mx-auto w-full max-w-[280px]">
-                    <div class="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black mb-4">A</div>
-                    <div id="option-a" class="text-3xl md:text-5xl font-black uppercase">...</div>
+        <!-- Middle UI: Arena -->
+        <div class="flex-1 grid grid-cols-12 gap-6 items-stretch min-h-0 overflow-hidden">
+            
+            <!-- P1 Status -->
+            <div id="p1-zone" class="col-span-3 player-zone rounded-[3.5rem] p-8 flex flex-col items-center justify-between border-2">
+                <div class="text-center">
+                    <div class="text-blue-400 font-black text-2xl tracking-widest uppercase">Pilot 1</div>
+                    <div class="text-7xl font-black text-white mt-4" id="p1-score">0</div>
+                </div>
+                
+                <div class="h-48 flex gap-4 items-center">
+                    <div class="progress-vertical">
+                        <div id="p1-fill" class="progress-fill bg-blue-500 shadow-[0_0_20px_#3b82f6]" style="height: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="w-full space-y-4">
+                    <div id="p1-a" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">A: WAS</div>
+                    <div id="p1-b" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">B: WERE</div>
                 </div>
             </div>
 
             <!-- Central Camera -->
-            <div class="lg:col-span-6 flex flex-col items-center justify-center h-full">
-                <div id="video-container" class="relative w-full aspect-video lg:aspect-square overflow-hidden bg-black">
+            <div class="col-span-6 flex flex-col items-center justify-center gap-4">
+                <div id="video-container" class="w-full aspect-video overflow-hidden bg-black shadow-[0_0_60px_rgba(79,70,229,0.4)]">
                     <video id="input_video" class="absolute inset-0 w-full h-full object-cover"></video>
-                    <canvas id="output_canvas" class="absolute inset-0 w-full h-full object-cover opacity-60"></canvas>
+                    <canvas id="output_canvas" class="absolute inset-0 w-full h-full object-cover"></canvas>
                 </div>
-                <div class="mt-2 px-6 py-2 bg-indigo-950/90 rounded-full border border-indigo-500/40 flex items-center gap-3">
-                    <div id="pose-dot" class="w-3 h-3 rounded-full bg-slate-600"></div>
-                    <span id="pose-status" class="text-[10px] font-bold uppercase tracking-widest text-indigo-300">Searching for Pilot</span>
+                <div class="flex gap-10 mt-2">
+                    <div class="flex items-center gap-2 text-blue-400 font-black text-sm uppercase">
+                        <span class="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></span> Station 1
+                    </div>
+                    <div class="flex items-center gap-2 text-pink-400 font-black text-sm uppercase">
+                        <span class="w-3 h-3 bg-pink-500 rounded-full animate-pulse"></span> Station 2
+                    </div>
                 </div>
             </div>
 
-            <!-- Option B -->
-            <div class="lg:col-span-3 flex flex-col justify-center h-full">
-                <div id="option-b-container" class="option-card planet bg-gradient-to-br from-emerald-600 to-teal-900 p-6 md:p-10 flex flex-col items-center justify-center text-center aspect-square mx-auto w-full max-w-[280px]">
-                    <div class="w-12 h-12 md:w-16 md:h-16 bg-white/20 rounded-2xl flex items-center justify-center text-2xl md:text-3xl font-black mb-4">B</div>
-                    <div id="option-b" class="text-3xl md:text-5xl font-black uppercase">...</div>
+            <!-- P2 Status -->
+            <div id="p2-zone" class="col-span-3 player-zone rounded-[3.5rem] p-8 flex flex-col items-center justify-between border-2">
+                <div class="text-center">
+                    <div class="text-pink-400 font-black text-2xl tracking-widest uppercase">Pilot 2</div>
+                    <div class="text-7xl font-black text-white mt-4" id="p2-score">0</div>
+                </div>
+
+                <div class="h-48 flex gap-4 items-center">
+                    <div class="progress-vertical">
+                        <div id="p2-fill" class="progress-fill bg-pink-500 shadow-[0_0_20px_#ec4899]" style="height: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="w-full space-y-4">
+                    <div id="p2-a" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">A: WAS</div>
+                    <div id="p2-b" class="p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase">B: WERE</div>
                 </div>
             </div>
         </div>
 
-        <!-- Footer -->
-        <div class="bg-slate-900/80 backdrop-blur-2xl p-4 rounded-[1.5rem] border border-white/10 flex justify-between items-center flex-shrink-0">
-            <div class="flex items-center gap-4">
-                <span class="text-indigo-400 font-black text-sm uppercase tracking-widest px-4 border-r border-white/10">
-                    Ms. Linh's Lab
-                </div>
-                <div class="hidden md:block">
-                    <span class="text-[9px] font-bold text-slate-500 uppercase">Energy Level</span>
-                    <div class="h-2 w-24 bg-slate-800 rounded-full mt-1 overflow-hidden">
-                        <div id="fuel-bar" class="h-full bg-indigo-500" style="width: 0%"></div>
-                    </div>
-                </div>
+        <!-- Dashboard -->
+        <div class="bg-slate-900/80 backdrop-blur-2xl p-6 rounded-[2.5rem] border border-white/10 flex justify-between items-center shadow-2xl">
+            <div class="text-indigo-400 font-black text-base uppercase tracking-[0.3em] pl-8 border-l-4 border-indigo-500">
+                Ms. Linh's Battle Arena
             </div>
             
-            <div class="flex items-center gap-4">
-                <p id="result-status" class="text-xl md:text-3xl font-black text-indigo-400 italic">READY</p>
-                <div class="flex gap-2">
-                    <select id="camera-select" onchange="changeCamera(this.value)" class="bg-indigo-950 text-[10px] font-bold p-2 rounded-lg outline-none border border-white/10">
-                        <option>Loading Cam...</option>
-                    </select>
-                    <button onclick="location.reload()" class="p-2 bg-slate-800 rounded-lg text-lg">🏠</button>
+            <div class="flex items-center gap-6">
+                <div id="status-msg" class="text-2xl font-black text-indigo-300 italic px-8">NEURAL LINK ACTIVE</div>
+                <div class="flex gap-3">
+                    <select id="camera-select" onchange="changeCamera(this.value)" class="bg-indigo-950 text-xs font-bold px-4 py-2 rounded-xl outline-none border border-white/10"></select>
+                    <button onclick="location.reload()" class="p-3 bg-slate-800 rounded-xl hover:bg-slate-700 transition-all text-xl shadow-lg">🏠</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Result Screen -->
-    <div id="result-screen" class="hidden fixed inset-0 z-[60] flex flex-col items-center justify-center p-6 text-center">
-        <div class="bg-indigo-950/90 backdrop-blur-3xl p-10 md:p-16 rounded-[4rem] border-4 border-indigo-500/30 max-w-xl w-full shadow-2xl">
-            <div class="text-8xl mb-6 floating">🛰️</div>
-            <h2 class="text-5xl font-black text-white mb-4">MISSION COMPLETE!</h2>
-            <div class="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-indigo-400 mb-8" id="final-score">0/5</div>
-            <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-3xl font-black py-6 rounded-3xl shadow-2xl transition-all hover:scale-105 active:scale-95 uppercase">
-                New Mission
+    <!-- Final Result Area -->
+    <div id="result-screen" class="hidden fixed inset-0 z-[60] flex flex-col items-center justify-center p-6 text-center bg-black/95 backdrop-blur-2xl">
+        <div class="bg-slate-900 p-20 rounded-[5rem] border-4 border-indigo-500/30 max-w-3xl w-full shadow-[0_0_120px_rgba(79,70,229,0.4)]">
+            <h2 class="text-7xl font-black text-white mb-12 tracking-tighter uppercase">Battle Ended!</h2>
+            <div class="flex justify-around items-center mb-16">
+                <div class="bg-blue-900/30 p-10 rounded-[4rem] border-2 border-blue-500/30">
+                    <p class="text-blue-400 font-black text-xl mb-4">PILOT 1</p>
+                    <p class="text-9xl font-black text-blue-500" id="final-p1">0</p>
+                </div>
+                <div class="text-6xl font-black opacity-20 px-4">VS</div>
+                <div class="bg-pink-900/30 p-10 rounded-[4rem] border-2 border-pink-500/30">
+                    <p class="text-pink-400 font-black text-xl mb-4">PILOT 2</p>
+                    <p class="text-9xl font-black text-pink-500" id="final-p2">0</p>
+                </div>
+            </div>
+            <h3 id="winner-text" class="text-5xl font-black text-yellow-400 mb-14 uppercase animate-bounce italic text-center">...</h3>
+            <button onclick="startGame()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-4xl font-black py-10 rounded-[3rem] uppercase tracking-widest shadow-2xl">
+                Rematch
             </button>
         </div>
     </div>
 
     <script>
-        let questionPool = [
+        const questionPool = [
             { q: "I ________ at home yesterday.", a: "was", b: "were", correct: "A" },
             { q: "They ________ at the zoo last Sunday.", a: "was", b: "were", correct: "B" },
             { q: "The weather ________ sunny this morning.", a: "was", b: "were", correct: "A" },
@@ -221,23 +228,20 @@
             { q: "My friends ________ at the park.", a: "wasn't", b: "weren't", correct: "B" }
         ];
 
-        let questions = [];
-        let currentIdx = 0, score = 0, gameState = 'init';
-        let selectionProgress = 0, currentSelection = null;
+        let questions = [], currentIdx = 0, p1Score = 0, p2Score = 0, gameState = 'init';
+        let p1Progress = 0, p2Progress = 0, p1Selection = null, p2Selection = null;
         let currentStream = null;
 
         const video = document.getElementById('input_video');
         const canvas = document.getElementById('output_canvas');
         const ctx = canvas.getContext('2d');
-        const statusDot = document.getElementById('pose-dot');
-        const statusText = document.getElementById('pose-status');
 
-        // Stars generator
+        // Stars
         const starsContainer = document.getElementById('stars-container');
         for (let i = 0; i < 100; i++) {
             const star = document.createElement('div');
             star.className = 'star';
-            star.style.width = Math.random() * 2 + 1 + 'px';
+            star.style.width = Math.random() * 3 + 'px';
             star.style.height = star.style.width;
             star.style.left = Math.random() * 100 + '%';
             star.style.top = Math.random() * 100 + '%';
@@ -245,53 +249,123 @@
             starsContainer.appendChild(star);
         }
 
-        const pose = new Pose({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}` });
-        pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.6, minTrackingConfidence: 0.6 });
-        pose.onResults(onResults);
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
+
+        faceMesh.setOptions({
+            maxNumFaces: 2,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.6,
+            minTrackingConfidence: 0.6
+        });
+
+        faceMesh.onResults(onResults);
 
         function onResults(results) {
             ctx.save();
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let detectedAction = null;
+            
+            // Draw dual station guides
+            ctx.lineWidth = 5;
+            ctx.setLineDash([10, 10]);
+            ctx.strokeStyle = "rgba(59, 130, 246, 0.4)"; 
+            ctx.beginPath();
+            ctx.arc(canvas.width * 0.25, canvas.height * 0.5, 110, 0, 2*Math.PI);
+            ctx.stroke();
 
-            if (results.poseLandmarks) {
-                statusDot.className = "w-3 h-3 rounded-full bg-emerald-500 shadow-[0_0_15px_#10b981]";
-                statusText.innerText = "Pilot Online";
-                const landmarks = results.poseLandmarks;
-                
-                // Index 15 is Left Wrist, 11 is Left Shoulder (Mirror View: Physical Left is Screen Left)
-                const isLeftHandUp = landmarks[15].y < landmarks[11].y - 0.05;
-                const isRightHandUp = landmarks[16].y < landmarks[12].y - 0.05;
+            ctx.strokeStyle = "rgba(236, 72, 153, 0.4)";
+            ctx.beginPath();
+            ctx.arc(canvas.width * 0.75, canvas.height * 0.5, 110, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.setLineDash([]);
 
-                if (isLeftHandUp && !isRightHandUp) detectedAction = 'A';
-                else if (isRightHandUp && !isLeftHandUp) detectedAction = 'B';
+            let currentP1Action = null, currentP2Action = null;
 
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-                ctx.lineWidth = 3;
-                [ [11, 15], [12, 16], [11, 12] ].forEach(pair => {
-                    ctx.beginPath();
-                    ctx.moveTo(landmarks[pair[0]].x * canvas.width, landmarks[pair[0]].y * canvas.height);
-                    ctx.lineTo(landmarks[pair[1]].x * canvas.width, landmarks[pair[1]].y * canvas.height);
-                    ctx.stroke();
-                });
-            } else {
-                statusDot.className = "w-3 h-3 rounded-full bg-rose-500 animate-pulse";
-                statusText.innerText = "Searching for Pilot";
+            if (results.multiFaceLandmarks) {
+                for (const landmarks of results.multiFaceLandmarks) {
+                    // Check if required points exist
+                    if (!landmarks || !landmarks[33] || !landmarks[263] || !landmarks[1]) continue;
+
+                    const leftEye = landmarks[33]; 
+                    const rightEye = landmarks[263]; 
+                    const nose = landmarks[1];
+                    
+                    const faceCenterX = nose.x;
+                    const eyeDiffY = (rightEye.y - leftEye.y);
+                    const TILT_LIMIT = 0.05;
+                    
+                    let tiltAction = null;
+                    if (eyeDiffY > TILT_LIMIT) tiltAction = 'A';
+                    else if (eyeDiffY < -TILT_LIMIT) tiltAction = 'B';
+
+                    if (faceCenterX < 0.5) currentP1Action = tiltAction;
+                    else currentP2Action = tiltAction;
+
+                    ctx.fillStyle = "white";
+                    [leftEye, rightEye].forEach(p => {
+                        ctx.beginPath();
+                        ctx.arc(p.x * canvas.width, p.y * canvas.height, 3, 0, 2*Math.PI);
+                        ctx.fill();
+                    });
+                }
             }
-            handleSelection(detectedAction);
+
+            if (gameState === 'playing') {
+                updatePlayerProgress(1, currentP1Action);
+                updatePlayerProgress(2, currentP2Action);
+            }
             ctx.restore();
         }
 
-        function handleSelection(action) {
-            if (gameState !== 'playing') return;
-            if (action !== currentSelection) { currentSelection = action; selectionProgress = 0; resetStyles(); }
-            else if (action !== null) {
-                selectionProgress += 4; 
-                if (selectionProgress >= 100) { checkAns(action); selectionProgress = 0; currentSelection = null; }
+        function updatePlayerProgress(playerNum, action) {
+            const fill = document.getElementById(`p${playerNum}-fill`);
+            const zone = document.getElementById(`p${playerNum}-zone`);
+            const btnA = document.getElementById(`p${playerNum}-a`);
+            const btnB = document.getElementById(`p${playerNum}-b`);
+
+            let currentAct = playerNum === 1 ? p1Selection : p2Selection;
+            let currentProg = playerNum === 1 ? p1Progress : p2Progress;
+
+            if (action !== currentAct) {
+                if (playerNum === 1) { p1Selection = action; p1Progress = 0; }
+                else { p2Selection = action; p2Progress = 0; }
+                btnA.className = action === 'A' ? "p-5 bg-blue-600 rounded-3xl text-center font-black text-xl border-2 border-white shadow-lg uppercase" : "p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase";
+                btnB.className = action === 'B' ? "p-5 bg-pink-600 rounded-3xl text-center font-black text-xl border-2 border-white shadow-lg uppercase" : "p-5 bg-slate-800 rounded-3xl text-center font-black text-xl border-2 border-transparent uppercase";
+                zone.classList.remove('active-p1', 'active-p2');
+            } else if (action !== null) {
+                if (playerNum === 1) { p1Progress += 5; currentProg = p1Progress; zone.classList.add('active-p1'); }
+                else { p2Progress += 5; currentProg = p2Progress; zone.classList.add('active-p2'); }
+                
+                if (currentProg >= 100) {
+                    checkAnswer(playerNum, action);
+                    p1Progress = 0; p2Progress = 0;
+                }
+            } else {
+                zone.classList.remove('active-p1', 'active-p2');
             }
-            document.getElementById('timer-bar').style.width = selectionProgress + '%';
-            if (currentSelection === 'A') document.getElementById('option-a-container').classList.add('selected-a');
-            else if (currentSelection === 'B') document.getElementById('option-b-container').classList.add('selected-b');
+            fill.style.height = currentProg + '%';
+        }
+
+        function checkAnswer(playerNum, choice) {
+            const correct = questions[currentIdx].correct;
+            const msg = document.getElementById('status-msg');
+            
+            if (choice === correct) {
+                if (playerNum === 1) p1Score++; else p2Score++;
+                msg.innerText = `PILOT ${playerNum} CAPTURED NEBULA! 🚀`;
+                msg.className = playerNum === 1 ? "text-2xl font-black text-blue-400 italic tracking-widest uppercase" : "text-2xl font-black text-pink-400 italic tracking-widest uppercase";
+            } else {
+                msg.innerText = `PILOT ${playerNum} BLACK HOLE! ❌`;
+                msg.className = "text-2xl font-black text-rose-500 italic tracking-widest uppercase";
+            }
+
+            gameState = 'feedback';
+            setTimeout(() => {
+                currentIdx++;
+                if (currentIdx < 5) { gameState = 'playing'; renderQ(); }
+                else { showResults(); }
+            }, 1600);
         }
 
         async function initCamera() {
@@ -304,33 +378,29 @@
                 let bestId = null;
                 vds.forEach(d => {
                     const opt = document.createElement('option');
-                    opt.value = d.deviceId;
-                    opt.text = d.label || 'Webcam';
+                    opt.value = d.deviceId; opt.text = d.label || 'Camera';
                     select.appendChild(opt);
-                    const l = opt.text.toLowerCase();
-                    if (!bestId && (l.includes('integrated') || l.includes('front') || l.includes('hp') || l.includes('built-in'))) bestId = d.deviceId;
+                    const low = opt.text.toLowerCase();
+                    if (!bestId && (low.includes('integrated') || low.includes('hp') || low.includes('facetime'))) bestId = d.deviceId;
                 });
                 stream.getTracks().forEach(t => t.stop());
-                const finalId = bestId || (vds[0]?.deviceId);
-                if (finalId) { select.value = finalId; changeCamera(finalId); }
-            } catch (e) { console.error(e); }
+                changeCamera(bestId || vds[0].deviceId);
+            } catch(e) { console.error(e); }
         }
 
         async function changeCamera(id) {
             if (currentStream) currentStream.getTracks().forEach(t => t.stop());
-            currentStream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: id }, width: 640, height: 480 }});
-            video.srcObject = currentStream;
-            video.onloadedmetadata = () => {
-                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                startApp();
-            };
-        }
-
-        function startApp() {
-            const cam = new Camera(video, { onFrame: async () => { await pose.send({ image: video }); }, width: 640, height: 480 });
-            cam.start();
-            document.getElementById('loading-screen').classList.add('opacity-0', 'pointer-events-none');
-            showHome();
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: id }, width: 1280, height: 720 }});
+                video.srcObject = currentStream;
+                video.onloadedmetadata = () => {
+                    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                    const cam = new Camera(video, { onFrame: async () => { await faceMesh.send({ image: video }); }, width: 1280, height: 720 });
+                    cam.start();
+                    document.getElementById('loading-screen').classList.add('opacity-0', 'pointer-events-none');
+                    showHome();
+                };
+            } catch(e) { console.error(e); }
         }
 
         function showHome() {
@@ -342,7 +412,7 @@
 
         function startGame() {
             questions = [...questionPool].sort(() => 0.5 - Math.random()).slice(0, 5);
-            currentIdx = 0; score = 0; gameState = 'playing';
+            currentIdx = 0; p1Score = 0; p2Score = 0; gameState = 'playing';
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('game-container').classList.remove('hidden');
             document.getElementById('result-screen').classList.add('hidden');
@@ -353,39 +423,32 @@
             const q = questions[currentIdx];
             document.getElementById('current-q').innerText = currentIdx + 1;
             document.getElementById('question-text').innerText = q.q;
-            document.getElementById('option-a').innerText = q.a;
-            document.getElementById('option-b').innerText = q.b;
-            document.getElementById('fuel-bar').style.width = ((currentIdx / 5) * 100) + '%';
-            document.getElementById('result-status').innerText = "SCANNING...";
-            document.getElementById('result-status').className = "text-xl md:text-3xl font-black text-indigo-400 italic";
-            resetStyles();
-        }
-
-        function resetStyles() {
-            document.getElementById('option-a-container').classList.remove('selected-a');
-            document.getElementById('option-b-container').classList.remove('selected-b');
-        }
-
-        function checkAns(side) {
-            const q = questions[currentIdx];
-            const isCorrect = side === q.correct;
-            if (isCorrect) score++;
-            gameState = 'feedback';
-            document.getElementById('result-status').innerText = isCorrect ? "CORRECT! ✅" : "WRONG! ❌";
-            document.getElementById('result-status').className = isCorrect ? "text-xl md:text-3xl font-black text-emerald-400" : "text-xl md:text-3xl font-black text-rose-400";
-            document.getElementById('question-text').innerText = isCorrect ? "MISSION SUCCESS! 🌟" : "SYSTEM ERROR! 😅";
-            setTimeout(() => {
-                currentIdx++;
-                if (currentIdx < 5) { gameState = 'playing'; renderQ(); }
-                else { showResults(); }
-            }, 1800);
+            document.getElementById('p1-score').innerText = p1Score;
+            document.getElementById('p2-score').innerText = p2Score;
+            document.getElementById('p1-fill').style.height = '0%';
+            document.getElementById('p2-fill').style.height = '0%';
+            
+            const optAText = "A: " + q.a.toUpperCase();
+            const optBText = "B: " + q.b.toUpperCase();
+            document.getElementById('p1-a').innerText = optAText;
+            document.getElementById('p1-b').innerText = optBText;
+            document.getElementById('p2-a').innerText = optAText;
+            document.getElementById('p2-b').innerText = optBText;
+            
+            document.getElementById('status-msg').innerText = "BATTLE IN PROGRESS...";
+            document.getElementById('status-msg').className = "text-xl font-black text-indigo-400 italic uppercase";
         }
 
         function showResults() {
             gameState = 'result';
             document.getElementById('game-container').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
-            document.getElementById('final-score').innerText = `${score}/5`;
+            document.getElementById('final-p1').innerText = p1Score;
+            document.getElementById('final-p2').innerText = p2Score;
+            const winner = document.getElementById('winner-text');
+            if (p1Score > p2Score) winner.innerText = "🏆 Pilot 1 conquered the sector!";
+            else if (p2Score > p1Score) winner.innerText = "🏆 Pilot 2 conquered the sector!";
+            else winner.innerText = "🤝 It's a draw! Double victory!";
         }
 
         window.onload = initCamera;
